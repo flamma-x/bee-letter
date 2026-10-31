@@ -8,14 +8,14 @@
 <meta name="theme-color" content="#2b2a26">
 <meta property="og:title" content="A small letter about bumblebees">
 <meta property="og:description" content="Guide a bumblebee through a meadow and gather five thoughts worth keeping.">
-<meta property="og:image" content="/assets/hero-wide.jpg">
+<meta property="og:image" content="assets/hero-wide.jpg">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23d9a441'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..600,50;1,9..144,300..600,50&family=Source+Serif+4:ital,opsz,wght@0,8..60,300..500;1,8..60,300..500&display=swap" rel="stylesheet">
-<link rel="preload" as="image" href="/assets/hero-wide.jpg" media="(orientation: landscape)">
-<link rel="preload" as="image" href="/assets/hero-tall.jpg" media="(orientation: portrait)">
-<link rel="stylesheet" href="/styles.css">
+<link rel="preload" as="image" href="assets/hero-wide.jpg" media="(orientation: landscape)">
+<link rel="preload" as="image" href="assets/hero-tall.jpg" media="(orientation: portrait)">
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
@@ -29,10 +29,10 @@
 <!-- ───────── Scene 0: opening ───────── -->
 <section id="intro" class="scene scene--intro is-active" data-scene="intro">
   <picture class="intro__still">
-    <source media="(orientation: portrait)" srcset="/assets/hero-tall.jpg">
-    <img src="/assets/hero-wide.jpg" alt="A bumblebee resting on a lavender flower in morning light">
+    <source media="(orientation: portrait)" srcset="assets/hero-tall.jpg">
+    <img src="assets/hero-wide.jpg" alt="A bumblebee resting on a lavender flower in morning light">
   </picture>
-  <video id="introVideo" class="intro__video" src="/assets/intro.mp4" muted loop playsinline preload="auto" aria-hidden="true"></video>
+  <video id="introVideo" class="intro__video" src="assets/intro.mp4" muted loop playsinline preload="auto" aria-hidden="true"></video>
   <div class="intro__veil" aria-hidden="true"></div>
 
   <div class="intro__copy">
@@ -48,7 +48,7 @@
 
 <!-- ───────── Scenes 1 to 4: meadow chapters ───────── -->
 <section id="meadow" class="scene scene--meadow" data-scene="meadow" aria-live="polite">
-  <img class="meadow__bg" src="/assets/meadow.jpg" alt="" aria-hidden="true">
+  <img class="meadow__bg" src="assets/meadow.jpg" alt="" aria-hidden="true">
   <div class="meadow__light" aria-hidden="true"></div>
 
   <header class="chapter">
@@ -59,7 +59,7 @@
   <div id="field" class="field" aria-label="Meadow. Move your pointer or finger to guide the bee to each flower.">
     <!-- flowers and pollen are injected here -->
     <div id="bee" class="bee" aria-hidden="true">
-      <img class="bee__img" src="/assets/bee.webp" alt="" draggable="false">
+      <img class="bee__img" src="assets/bee.webp" alt="" draggable="false">
       <span class="bee__shadow"></span>
     </div>
   </div>
@@ -79,7 +79,7 @@
 
 <!-- ───────── Scene 5: finale ───────── -->
 <section id="finale" class="scene scene--finale" data-scene="finale">
-  <video id="finaleVideo" class="finale__video" src="/assets/finale.mp4" poster="/assets/liftoff.jpg" muted playsinline preload="auto"></video>
+  <video id="finaleVideo" class="finale__video" src="assets/finale.mp4" poster="assets/liftoff.jpg" muted playsinline preload="auto"></video>
   <div class="finale__veil" aria-hidden="true"></div>
 
   <div class="finale__copy">
@@ -95,7 +95,7 @@
   </div>
 </section>
 
-<script src="/audio.js" defer></script>
-<script src="/app.js" defer></script>
+<script src="audio.js" defer></script>
+<script src="app.js" defer></script>
 </body>
 </html>

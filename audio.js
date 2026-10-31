@@ -53,7 +53,7 @@
     const ambLP = ctx.createBiquadFilter(); ambLP.type = 'lowpass'; ambLP.frequency.value = 6000;
     ambLP.connect(ambienceGain); ambienceGain.connect(master);
     ambience = { node: ambLP, buffer: null, timer: null, nextAt: 0 };
-    fetch('/assets/ambience.mp3').then((r) => r.arrayBuffer()).then((b) => ctx.decodeAudioData(b)).then((buf) => {
+    fetch('assets/ambience.mp3').then((r) => r.arrayBuffer()).then((b) => ctx.decodeAudioData(b)).then((buf) => {
       ambience.buffer = buf;
       if (running) loopAmbience();
     }).catch(() => {});

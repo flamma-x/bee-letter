@@ -366,7 +366,7 @@ em { font-style: italic; }
 /* Wing blur ghost: a faint second copy displaced, flickering fast. Reads as motion, not a sprite swap. */
 .bee::before {
   content: ""; position: absolute; inset: 0;
-  background: url("/assets/bee.webp") center / contain no-repeat;
+  background: url("assets/bee.webp") center / contain no-repeat;
   opacity: .22;
   clip-path: polygon(20% 0, 80% 0, 80% 48%, 20% 48%);
   animation: wings 70ms steps(2) infinite;

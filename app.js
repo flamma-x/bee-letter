@@ -34,7 +34,7 @@
     },
   ];
   const ROMAN = ['I', 'II', 'III', 'IV'];
-  const FLOWER_SRC = ['/assets/flower-lavender.webp', '/assets/flower-cornflower.webp', '/assets/flower-daisy.webp'];
+  const FLOWER_SRC = ['assets/flower-lavender.webp', 'assets/flower-cornflower.webp', 'assets/flower-daisy.webp'];
   const FLOWER_SHAPE = [{ w: 0.62, h: 1.0 }, { w: 1.0, h: 1.0 }, { w: 1.0, h: 1.0 }]; // lavender is a tall sprig
 
   // ───────── DOM ─────────
@@ -413,7 +413,7 @@
   introVideo.load();
 
   // Warm the cache for the meadow while the opening plays
-  ['/assets/meadow.jpg', '/assets/bee.webp', ...FLOWER_SRC].forEach((src) => { const im = new Image(); im.src = src; });
+  ['assets/meadow.jpg', 'assets/bee.webp', ...FLOWER_SRC].forEach((src) => { const im = new Image(); im.src = src; });
 
   measure();
 })();

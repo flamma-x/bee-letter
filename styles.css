@@ -254,8 +254,9 @@ em { font-style: italic; }
 .meadow__light {
   position: absolute; inset: 0; pointer-events: none;
   background:
-    radial-gradient(60% 50% at 10% 0%, rgba(255,232,170,.35), transparent 70%),
-    linear-gradient(180deg, rgba(29,28,24,.28) 0%, rgba(29,28,24,0) 22%, rgba(29,28,24,0) 62%, rgba(29,28,24,.62) 100%);
+    radial-gradient(55% 45% at 92% 0%, rgba(255,232,170,.28), transparent 70%),
+    radial-gradient(50% 40% at 0% 0%, rgba(29,28,24,.45), transparent 70%),
+    linear-gradient(180deg, rgba(29,28,24,.3) 0%, rgba(29,28,24,0) 24%, rgba(29,28,24,0) 62%, rgba(29,28,24,.62) 100%);
 }
 
 .chapter {
@@ -426,6 +427,7 @@ em { font-style: italic; }
 
 .touch-hint {
   position: absolute; z-index: 6;
+  white-space: nowrap;
   left: 50%; top: 50%;
   transform: translate(-50%, -50%);
   margin: 0; padding: .6rem 1rem;
@@ -457,25 +459,29 @@ em { font-style: italic; }
 }
 .finale__veil {
   position: absolute; inset: 0;
-  background: linear-gradient(180deg, rgba(29,28,24,.18) 0%, rgba(29,28,24,0) 35%, rgba(29,28,24,0) 55%, rgba(29,28,24,.7) 100%);
+  background:
+    linear-gradient(180deg, rgba(29,28,24,.12) 0%, rgba(29,28,24,0) 30%, rgba(29,28,24,.35) 58%, rgba(29,28,24,.86) 100%),
+    linear-gradient(90deg, rgba(29,28,24,.45) 0%, rgba(29,28,24,.15) 50%, rgba(29,28,24,0) 80%);
+  opacity: 0; transition: opacity 2000ms var(--ease-soft);
 }
+.scene--finale.is-active .finale__veil { opacity: 1; }
 .finale__copy {
   position: absolute;
   left: calc(var(--safe-l) + clamp(22px, 6vw, 96px));
   right: calc(var(--safe-r) + 22px);
   bottom: calc(var(--safe-b) + clamp(28px, 8vh, 96px));
-  max-width: 40rem;
+  max-width: 46rem;
 }
 .finale__quote {
   margin: 0 0 1.2rem;
   font-family: var(--display);
   font-variation-settings: "opsz" 144, "SOFT" 50;
   font-weight: 300;
-  font-size: clamp(1.5rem, 2.6vw + .9rem, 3.2rem);
-  line-height: 1.15;
+  font-size: clamp(1.35rem, 1.9vw + .8rem, 2.6rem);
+  line-height: 1.2;
   letter-spacing: -.012em;
   color: var(--white);
-  text-shadow: 0 2px 30px rgba(29,28,24,.55);
+  text-shadow: 0 1px 2px rgba(29,28,24,.5), 0 4px 34px rgba(29,28,24,.7);
 }
 .finale__quote .line {
   display: block;
@@ -489,9 +495,10 @@ em { font-style: italic; }
   font-family: var(--display);
   font-variation-settings: "opsz" 144, "SOFT" 50;
   font-weight: 400;
-  font-size: clamp(2rem, 4vw + 1rem, 4.4rem);
+  font-size: clamp(2.2rem, 4vw + 1rem, 4.4rem);
   line-height: 1;
   color: var(--white);
+  text-shadow: 0 1px 2px rgba(29,28,24,.5), 0 4px 34px rgba(29,28,24,.7);
   opacity: 0; transform: translateY(10px);
   transition: opacity 1600ms var(--ease-soft), transform 1600ms var(--ease-out);
 }

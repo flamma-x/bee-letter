@@ -81,7 +81,7 @@
     bee.size = clamp(18 * vmin(), 96, 190);
     beeEl.style.setProperty('--bee', bee.size + 'px');
     flowers.forEach((f) => {
-      f.size = clamp(16 * vmin(), 84, 160);
+      f.size = clamp(16 * vmin(), 84, 160) * (f.type === 0 ? 1.45 : 1);
       f.el.style.setProperty('--size', f.size + 'px');
     });
   }
@@ -106,19 +106,23 @@
     const box = portrait
       ? { x0: 0.16, x1: 0.84, y0: 0.22, y1: 0.60 }
       : { x0: 0.10, x1: 0.90, y0: 0.24, y1: 0.68 };
-    const minD = portrait ? 0.22 : 0.17; // in field-diagonal-ish units (fraction of larger side)
-    const pts = [];
-    let tries = 0;
-    while (pts.length < n && tries < 600) {
-      tries++;
-      const p = { fx: rand(box.x0, box.x1), fy: rand(box.y0, box.y1) };
-      const ok = pts.every((q) => {
-        const dx = (p.fx - q.fx) * W, dy = (p.fy - q.fy) * H;
-        return Math.hypot(dx, dy) > minD * Math.max(W, H);
-      });
-      // keep away from the bee's start as well
-      const bx = 0.18 * W, by = 0.5 * H;
-      if (ok && Math.hypot(p.fx * W - bx, p.fy * H - by) > bee.size * 1.2) pts.push(p);
+    let minD = portrait ? 0.22 : 0.17; // fraction of the larger side
+    let pts = [];
+    // Relax the spacing until all n fit; small screens with five flowers need it.
+    for (let round = 0; round < 8 && pts.length < n; round++, minD *= 0.82) {
+      pts = [];
+      let tries = 0;
+      while (pts.length < n && tries < 400) {
+        tries++;
+        const p = { fx: rand(box.x0, box.x1), fy: rand(box.y0, box.y1) };
+        const ok = pts.every((q) => {
+          const dx = (p.fx - q.fx) * W, dy = (p.fy - q.fy) * H;
+          return Math.hypot(dx, dy) > minD * Math.max(W, H);
+        });
+        // keep away from the bee's start as well
+        const bx = 0.18 * W, by = 0.5 * H;
+        if (ok && Math.hypot(p.fx * W - bx, p.fy * H - by) > bee.size * 1.1) pts.push(p);
+      }
     }
     return pts;
   }
@@ -186,7 +190,10 @@
     bee.x = -bee.size; bee.y = H * 0.5; bee.vx = 0; bee.vy = 0; bee.dir = 1;
     bee.tx = W * 0.18; bee.ty = H * 0.5; bee.hasTarget = false;
 
-    if (coarse && !everDragged) touchHint.classList.add('is-on');
+    if (coarse && !everDragged) {
+      touchHint.classList.add('is-on');
+      setTimeout(() => touchHint.classList.remove('is-on'), 6000);
+    }
   }
 
   function showFlower(f) {
@@ -261,7 +268,10 @@
     bee.hasTarget = true;
   }
   field.addEventListener('pointermove', (e) => {
-    if (e.pointerType === 'mouse' || dragging) setTarget(e.clientX, e.clientY, e.pointerType !== 'mouse');
+    if (e.pointerType === 'mouse' || dragging) {
+      setTarget(e.clientX, e.clientY, e.pointerType !== 'mouse');
+      if (!everDragged) { everDragged = true; touchHint.classList.remove('is-on'); }
+    }
   });
   field.addEventListener('pointerdown', (e) => {
     dragging = true;

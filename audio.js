@@ -48,13 +48,39 @@
     const padLP = ctx.createBiquadFilter(); padLP.type = 'lowpass'; padLP.frequency.value = 1400; padLP.Q.value = 0.4;
     padBus.connect(padLP); padLP.connect(master); padLP.connect(reverb);
 
-    // Field recording, looped under the pads
-    ambience = new Audio('/assets/ambience.mp3');
-    ambience.loop = true; ambience.crossOrigin = 'anonymous'; ambience.preload = 'auto';
-    const src = ctx.createMediaElementSource(ambience);
+    // Field recording under the pads, looped with an overlap so the seam never shows
     ambienceGain = ctx.createGain(); ambienceGain.gain.value = 0.0;
     const ambLP = ctx.createBiquadFilter(); ambLP.type = 'lowpass'; ambLP.frequency.value = 6000;
-    src.connect(ambLP); ambLP.connect(ambienceGain); ambienceGain.connect(master);
+    ambLP.connect(ambienceGain); ambienceGain.connect(master);
+    ambience = { node: ambLP, buffer: null, timer: null, nextAt: 0 };
+    fetch('/assets/ambience.mp3').then((r) => r.arrayBuffer()).then((b) => ctx.decodeAudioData(b)).then((buf) => {
+      ambience.buffer = buf;
+      if (running) loopAmbience();
+    }).catch(() => {});
+  }
+
+  const XF = 1.6; // seconds of overlap between consecutive passes
+  function playAmbienceOnce(at) {
+    const buf = ambience.buffer, d = buf.duration;
+    const src = ctx.createBufferSource(); src.buffer = buf;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0, at);
+    g.gain.linearRampToValueAtTime(1, at + XF);
+    g.gain.setValueAtTime(1, at + d - XF);
+    g.gain.linearRampToValueAtTime(0, at + d);
+    src.connect(g); g.connect(ambience.node);
+    src.start(at); src.stop(at + d + 0.05);
+    return at + d - XF;
+  }
+  function loopAmbience() {
+    if (!ambience.buffer || ambience.timer) return;
+    ambience.nextAt = playAmbienceOnce(ctx.currentTime + 0.05);
+    const tickLoop = () => {
+      if (!running) { ambience.timer = null; return; }
+      if (ambience.nextAt - ctx.currentTime < 2.5) ambience.nextAt = playAmbienceOnce(ambience.nextAt);
+      ambience.timer = setTimeout(tickLoop, 500);
+    };
+    ambience.timer = setTimeout(tickLoop, 500);
   }
 
   function voice(freq, t0, dur) {
@@ -127,11 +153,10 @@
       if (!ctx) build();
       if (ctx.state === 'suspended') ctx.resume();
       running = true;
-      ambience.play().then(() => {
-        const t = ctx.currentTime;
-        ambienceGain.gain.setValueAtTime(0, t);
-        ambienceGain.gain.linearRampToValueAtTime(0.5, t + 6);
-      }).catch(() => {});
+      const t = ctx.currentTime;
+      ambienceGain.gain.setValueAtTime(0, t);
+      ambienceGain.gain.linearRampToValueAtTime(0.5, t + 6);
+      loopAmbience();
       fadeMaster(muted ? 0 : 1, 4);
       schedule();
       sparkleTimer = setTimeout(scheduleSparkle, 6000);

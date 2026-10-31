@@ -21,14 +21,14 @@ dl intro.mp4          hf_20261031_131542_3fd8f092-704e-46db-8f6f-2045e265997a.mp
 dl finale.mp4         hf_20261031_131534_e763960c-9023-47b8-917e-0772df7ed947.mp4
 
 # ── Photos ─────────────────────────────────────────────
-photo() { convert "tmp/$1" -resize "$3" -strip -interlace Plane -sampling-factor 4:2:0 -quality "$4" "assets/$2"; }
+photo() { [ -s "assets/$2" ] && return 0; convert "tmp/$1" -resize "$3" -strip -interlace Plane -sampling-factor 4:2:0 -quality "$4" "assets/$2"; }
 photo hero-wide.png hero-wide.jpg 2560x 84
 photo hero-tall.png hero-tall.jpg 1440x 84
 photo liftoff.png   liftoff.jpg   2560x 82
 photo meadow.png    meadow.jpg    2560x 80
 
 # ── Cutouts (transparent WebP) ─────────────────────────
-cut() { convert "tmp/$1" -trim +repage -resize "$3" -strip -quality 86 -define webp:alpha-quality=92 -define webp:method=6 "assets/$2"; }
+cut() { [ -s "assets/$2" ] && return 0; convert "tmp/$1" -trim +repage -resize "$3" -strip -quality 86 -define webp:alpha-quality=92 -define webp:method=6 "assets/$2"; }
 cut bee-cut.png        bee.webp               900x900
 cut bee2-cut.png       bee-2.webp             900x900
 cut lavender-cut.png   flower-lavender.webp   700x700
@@ -36,16 +36,31 @@ cut cornflower-cut.png flower-cornflower.webp 700x700
 cut daisy-cut.png      flower-daisy.webp      700x700
 
 # ── Intro loop: seamless (tail crossfades into head), silent ──
-ffmpeg -y -v error -i tmp/intro.mp4 -filter_complex \
+[ -s assets/intro.mp4 ] || ffmpeg -y -v error -i tmp/intro.mp4 -filter_complex \
   "[0:v]trim=1:8,setpts=PTS-STARTPTS[a];[0:v]trim=0:1,setpts=PTS-STARTPTS[b];[a][b]xfade=transition=fade:duration=1:offset=6,scale=1920:-2,format=yuv420p[v]" \
   -map "[v]" -an -c:v libx264 -preset slow -crf 21 -movflags +faststart assets/intro.mp4
 
 # ── Finale: as rendered, silent, faststart ─────────────
-ffmpeg -y -v error -i tmp/finale.mp4 -an -c:v libx264 -preset slow -crf 20 -vf "scale=1920:-2,format=yuv420p" -movflags +faststart assets/finale.mp4
+[ -s assets/finale.mp4 ] || ffmpeg -y -v error -i tmp/finale.mp4 -an -c:v libx264 -preset slow -crf 20 -vf "scale=1920:-2,format=yuv420p" -movflags +faststart assets/finale.mp4
 
 # ── Ambience: both clips' field audio, joined and made to loop ──
-ffmpeg -y -v error -i tmp/intro.mp4 -i tmp/finale.mp4 -filter_complex \
+rm -f assets/ambience.mp3
+ffmpeg -version | head -1
+ffmpeg -y -i tmp/intro.mp4 -vn -ac 2 -ar 44100 tmp/a0.wav
+ffmpeg -y -i tmp/finale.mp4 -vn -ac 2 -ar 44100 tmp/a1.wav
+set +e
+ffmpeg -y -i tmp/a0.wav -i tmp/a1.wav -filter_complex \
   "[0:a][1:a]acrossfade=d=1.5:c1=tri:c2=tri[j];[j]asplit[j1][j2];[j1]atrim=1.5,asetpts=PTS-STARTPTS[x];[j2]atrim=0:1.5,asetpts=PTS-STARTPTS[y];[x][y]acrossfade=d=1.5:c1=tri:c2=tri,highpass=f=80,lowpass=f=9000,loudnorm=I=-24:TP=-3[a]" \
-  -map "[a]" -c:a libmp3lame -q:a 4 assets/ambience.mp3
+  -map "[a]" -c:a libmp3lame -q:a 4 assets/ambience.mp3 2>&1 | tail -5
+set -e
+SZ=$(stat -c %s assets/ambience.mp3 2>/dev/null || echo 0)
+echo "ambience size: $SZ"
+if [ "$SZ" -lt 50000 ]; then
+  echo "seamless loop failed, using simple join"
+  ffmpeg -y -i tmp/a0.wav -i tmp/a1.wav -filter_complex \
+    "[0:a]afade=t=in:d=1.5,afade=t=out:st=6.5:d=1.5[a0];[1:a]afade=t=in:d=1.5,afade=t=out:st=6.5:d=1.5[a1];[a0][a1]concat=n=2:v=0:a=1,highpass=f=80,lowpass=f=9000,volume=-6dB[a]" \
+    -map "[a]" -c:a libmp3lame -q:a 4 assets/ambience.mp3
+fi
+ffprobe -v error -show_entries format=duration,size -of compact assets/ambience.mp3
 
 ls -la assets
